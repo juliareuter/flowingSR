@@ -1,11 +1,14 @@
-using Revise
+#using Revise
 using TiSR
 using JMcDM
 using DataFrames
 using CSV
+using DynamicQuantities
 
 println(pathof(TiSR))
-file_path = "./data/train_instance4.csv"
+dataset_name = "ideal_gas_generated_noise"
+file_path = "./data/empiricalBench/$(dataset_name).csv"
+#file_path = "./data/Re0_phi01_n30_symmetricRotation_dimensionless.csv"
 df = CSV.read(file_path, DataFrame)
 # reduce
 maxes = maximum(Matrix(df), dims=1)
@@ -19,7 +22,7 @@ data_matr = Matrix(df)
 
 # make some custom settings
 #fit_weights = 1 ./ data_matr[:, end] # weights to minimize relative deviation
-parts = [0.8, 0.2]
+parts = [0.8, 0.2] #1: fitting, 2: early stop, all: evaluation of final front
 
 pow_abs(v1, v2) = abs(v1)^v2
 sqrt_abs(v1) = sqrt(abs(v1))
@@ -28,8 +31,9 @@ ops, data = Options(
     data_descript=data_descript(
         data_matr;
         parts          = parts,
-        arbitrary_name = "test4"
+        arbitrary_name = dataset_name,
         #fit_weights    = fit_weights
+        units          = [u"0", u"m", u"0"],
     ),
     general=general_params(
         n_gens          = typemax(Int64),
@@ -38,12 +42,12 @@ ops, data = Options(
         pow_abs_param   = true,
         prevent_doubles = 1e-3,
         prevent_doubles_across_islands = false,
-        t_lim           = 60 * 10,                  # will run for 5 minutes
+        t_lim           = 60 * 5,                  # will run for 5 minutes
         multithreadding = true,
     ),
     selection=selection_params(
-        hall_of_fame_objectives           = [:ms_processed_e, :compl, :mare],          # -> objectives for the hall_of_fame
-        selection_objectives              = [:ms_processed_e, :minus_spearman]#, :age],           # -> objectives for the Pareto-optimal selection part of selection
+        hall_of_fame_objectives           = [:ms_processed_e, :mare, :compl],          # -> objectives for the hall_of_fame
+        selection_objectives              = [:ms_processed_e, :compl, :minus_spearman]#, :age],           # -> objectives for the Pareto-optimal selection part of selection
     ),
     fitting=fitting_params(
         early_stop_iter = 5,
@@ -51,18 +55,21 @@ ops, data = Options(
     ),
     binops         = (  +,   -,   *,   /,  ^),  # -> binary function set to choose from
     p_binops       = (1.0, 1.0, 1.0, 1.0, 1.0),  # -> probabilites for selection of each binary functions (same length as provided binops) (dont need to add up to 1, adjusted accordingly)
-    unaops         = (exp, log, sin, cos, abs, sqrt_abs),  # -> unary function set to choose from
-    p_unaops       = (0.0, 0.0, 1.0, 1.0, 1.0, 1.0),  # -> probability for each unary function
-    illegal_dict = Dict(:sin => (sin, cos),
-                        :cos => (sin, cos),
-                        :abs => (abs,))
+    unaops         = (exp, log, sin, cos, abs),  # -> unary function set to choose from
+    p_unaops       = (1.0, 1.0, 1.0, 1.0, 1.0),  # -> probability for each unary function
+    illegal_dict = Dict(:sin => (sin, cos)  ,
+                        :cos => (sin, cos)  ,
+                        :abs => (abs,)      ,
+                        :/ => (/,)          ,          
+                        :log => (log,)      ,
+                        :exp => (exp,)      ,)
 );
 
 # start the equation search
 hall_of_fame, population, prog_dict = generational_loop(data, ops);
 
 # inspect the results
-col = "mare" # mean relative error
+col = "mse" # "mare" mean relative error
 perm = sortperm(hall_of_fame[col])
 
 hall_of_fame[col][perm]
@@ -80,4 +87,4 @@ function choose_best_individual(hof::Dict{String, AbstractVector}; kwargs...)
 end
 
 write_to_csv(hall_of_fame, population, prog_dict, ops)
-choose_best_individual(hall_of_fame, mare=10.0, compl=1)
+choose_best_individual(hall_of_fame, minus_r2=10.0, compl=0)
