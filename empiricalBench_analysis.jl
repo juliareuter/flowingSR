@@ -42,7 +42,7 @@ for ds in dataset
             dataset_appendix = "_generated_wo_noise"
         end
         for al in algo
-            columns = ["run", "eqs_orig_rounded", "ms_processed_e"]
+            columns = ["run", "compl", "age", "minus_spearman", "mare", "mae",  "ms_processed_e", "eqs_orig_rounded"]
             isfile("./analysis/$(ds)$(dataset_appendix)_$(al)_good.csv") ? res_good_df = CSV.read("./analysis/$(ds)$(dataset_appendix)_$(al)_good.csv", DataFrame) : res_good_df = DataFrame([name => [] for name in columns])
             isfile("./analysis/$(ds)$(dataset_appendix)_$(al)_bad.csv") ? res_bad_df = CSV.read("./analysis/$(ds)$(dataset_appendix)_$(al)_bad.csv", DataFrame) : res_bad_df = DataFrame([name => [] for name in columns])
             for r in run
@@ -52,18 +52,18 @@ for ds in dataset
                 arbitrary_name = "$(ds)$(dataset_appendix)_$(al)_$(r)"
                 df = CSV.read("./results/$(arbitrary_name)/$(arbitrary_name)_hall_of_fame.csv", DataFrame)
                 print(arbitrary_name)
-                df_filtered = df[df.ms_processed_e .< thresh,[:eqs_orig_rounded, :ms_processed_e]]
+                df_filtered = df[df.ms_processed_e .< thresh,[:compl, :age, :minus_spearman, :mare, :mae, :ms_processed_e, :eqs_orig_rounded]]
+                df_filtered[!,:run] .= r
                 transform!(df_filtered,:eqs_orig_rounded => ByRow(eqs_orig_rounded -> simplify_equation(eqs_orig_rounded)) => :eqs_orig_rounded)
                 print("\n\n") 
-                show(df_filtered, truncate = 1000, allcols = true)
+                show(df_filtered[:, [:eqs_orig_rounded, :ms_processed_e]], truncate = 1000, allcols = true)
                 print("\n\n") 
                 println("Is this equation correct? ")
 
                 #check if equation is already in list of valid ones
-                if simplify_equation(df_filtered[1, :eqs_orig_rounded]) in valid_eqs
-                    println("Yes")
-                    eq_simp = simplify_equation(df_filtered[1, :eqs_orig_rounded])
-                    push!(res_good_df, [r, eq_simp, df_filtered[1, :ms_processed_e]])
+                if df_filtered[1, :eqs_orig_rounded] in valid_eqs
+                    println("Equation already verififed as correct.")
+                    push!(res_good_df, df_filtered[1,:])#, :ms_processed_e]])
 
                 #ask for user input
                 else
@@ -71,15 +71,14 @@ for ds in dataset
                     inp = parse(Int64, inp)  
                     if inp > 0
                         valid_eqs = [valid_eqs; df_filtered[inp, :eqs_orig_rounded]]
-                        push!(res_good_df, [r, df_filtered[inp, :eqs_orig_rounded], df_filtered[inp, :ms_processed_e]])
+                        push!(res_good_df, df_filtered[inp,:])#, :eqs_orig_rounded], df_filtered[inp, :ms_processed_e]])
                     else
                         #add run to not successful runs
-                        push!(res_bad_df, [r, df_filtered[1, :eqs_orig_rounded], df_filtered[1, :ms_processed_e]])
+                        push!(res_bad_df, df_filtered[0,:])#, :eqs_orig_rounded], df_filtered[1, :ms_processed_e]])
                     end        
                 end
                 println("=================================================")
             end
-            println(res_good_df)
             CSV.write("./analysis/$(ds)$(dataset_appendix)_$(al)_good.csv", res_good_df)
             CSV.write("./analysis/$(ds)$(dataset_appendix)_$(al)_bad.csv", res_bad_df)
         end
