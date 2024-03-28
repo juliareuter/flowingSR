@@ -22,7 +22,7 @@ function parse_commandline()
             help = "options are: 1,2,3,4,5,6,7,8,9" #1: Hubble, 2: Kepler, 3: Newton, 4: Planck, 5: Leavitt, 6: Schechter, 7: Bode, 8: Ideal gas, 9: Rydberg
         "dataset_type"
             arg_type = String
-            help = "options are: original, wo_noise"
+            help = "options are: original, wo_noise, 03_noise, 05_noise"
         "obj"
             arg_type = String
             help = "options are: f1f2f4, f1f2f3, f1f3f4"
@@ -43,7 +43,7 @@ dataset_type = parsed_args["dataset_type"]
 obj = parsed_args["obj"]
 run = parsed_args["run"]
 
-has_original_measures = [1,2,5,7] #original datasets available
+has_original_measures = [4,7]#[1,2,5,7] #original datasets available
 
 if dataset_type == "original"
     if dataset in has_original_measures
@@ -53,9 +53,14 @@ if dataset_type == "original"
     end
 elseif dataset_type == "wo_noise"
     dataset_appendix = "_generated_wo_noise"
+elseif dataset_type == "03_noise"
+    dataset_appendix = "_generated_03noise"
+elseif dataset_type == "05_noise"
+    dataset_appendix = "_generated_05noise"
 end
+
 dataset_prefix = "./data/empiricalBench"
-arbitrary_name = "$(dataset)$(dataset_appendix)_$(obj)_$(algo)_$(run)"
+arbitrary_name = "$(dataset)$(dataset_appendix)_log_$(obj)_$(algo)_$(run)"
 #input units, target unit, dimensionless
 if dataset == 1 #Hubble, stays as is
     data_matrix = Matrix(CSV.read("$dataset_prefix/hubble$dataset_appendix.csv", DataFrame))
@@ -67,8 +72,8 @@ elseif dataset == 3 #Newton
     data_matrix = Matrix(CSV.read("$dataset_prefix/newton$dataset_appendix.csv", DataFrame))
     units = [u"m", u"kg", u"kg", u"N", u"0"]
 elseif dataset == 4 #Planck, first try to remove scaling using exp(y), might change to log only later
-    data_matrix = Matrix(CSV.read("$dataset_prefix/planck$(dataset_appendix)_scaled.csv", DataFrame)) #wo_infs
-    #data_matrix[:, end] .= log.(data_matrix[:, end])
+    data_matrix = Matrix(CSV.read("$dataset_prefix/planck$(dataset_appendix)_wo_infs.csv", DataFrame)) #wo_infs
+    data_matrix[:, end] .= log.(data_matrix[:, end])
     units = [u"Hz", u"K", u"W * m^(-2) * Hz^(-1)", u"0"]
 elseif dataset == 5 #Leavitt
     data_matrix = Matrix(CSV.read("$dataset_prefix/leavitt$dataset_appendix.csv", DataFrame))
@@ -89,7 +94,7 @@ elseif dataset == 9 #Rydberg, uses log scale but input features are dimensionles
     units = [u"0", u"0", u"m", u"0"]
 end
 
-dataset == 4 ? time = 60 * 10.0 : time = 60 * 30.0
+dataset == 4 ? time = 60 * 60.0 : time = 60 * 30.0
 
 if algo == "correct_all"
     always_correct_dims = true
@@ -151,7 +156,7 @@ ops, data = Options(
         max_compl               = 30,
         pow_abs_param           = true,
         prevent_doubles         = 1e-7,
-        t_lim                   = time, #make this 1 hour
+        t_lim                   = time,
         multithreadding         = true,
         always_correct_dims     = always_correct_dims,
         death_penalty_dims      = death_penalty_dims,
@@ -188,8 +193,6 @@ ops, data = Options(
         p_simplify         = 0.5,
         p_drastic_simplify = 0.5,
         p_correct_dims     = p_correct_dims,),
-    
-    
 );
 
 # ==================================================================================================
