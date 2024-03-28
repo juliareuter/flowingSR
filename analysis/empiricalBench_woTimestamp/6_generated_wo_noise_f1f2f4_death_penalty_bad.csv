@@ -1,0 +1,2 @@
+run,compl,age,minus_spearman,mare,mae,ms_processed_e,eqs_orig_rounded
+24,10.0,753.0,-1.0,0.0032865052862982884,0.0809293167876818,0.012492086746031136,(272000.0 / (sqrt(abs(v1)) - 157000.0))^3 - log(v1)

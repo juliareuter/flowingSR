@@ -1,0 +1,2 @@
+time,generation,mean age hall_of_fame,mean compl,mean recursive_compl,mean n_params,min mae,min mse,min max_ae,min minus_r2,min mare,min q75_are,min max_are,min ms_processed_e,min minus_spearman,max penalty
+11.690095901489258,1.0,0.0,6.0,256.0,1.0,0.007628563247097323,8.815987516253553e-5,0.02215867071146438,-0.9970293409883128,0.03182375738680832,0.044377508238876,0.1689289239398011,8.815987516253553e-5,-0.9976625853646766,0.0

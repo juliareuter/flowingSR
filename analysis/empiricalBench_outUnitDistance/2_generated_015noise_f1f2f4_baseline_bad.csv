@@ -1,0 +1,2 @@
+time_stamp,run,compl,age,dim_penalty,minus_spearman,mare,mae,ms_processed_e,eqs_orig_rounded
+40.41272521018982,24,10.0,2984.0,0.0,-0.9757575757575757,0.07503613826701572,0.15261210490672494,0.049945565028500796,(0.0348 + v1)*sqrt(abs(2.03v1))

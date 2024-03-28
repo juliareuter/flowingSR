@@ -1,0 +1,2 @@
+run,compl,age,dim_penalty,minus_spearman,mare,mae,ms_processed_e,eqs_orig_rounded
+20,10.0,713.0,0,-0.9965366381772761,0.0722220306949194,5.857274748218068e-8,5.998931553107196e-15,(6.03e-8(v1^2)) / (1.03 + (-v1) / v2)
