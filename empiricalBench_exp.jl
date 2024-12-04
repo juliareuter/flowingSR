@@ -131,6 +131,18 @@ elseif dataset == 16 #fluid mechanics, 30 particles, phi = 0.1
     data_matrix = Matrix(CSV.read("./data/thirtyParticles/Re0_phi01_n30_symmetricRotation_dimensionless.csv", DataFrame))
     data_matrix = data_matrix[:, [1,2,3,7]]
     units = [u"m",  u"0", u"0", u"N", u"0"]
+elseif dataset == 17 #fluid mechanics, 30 particles, phi = 0.2
+    data_matrix = Matrix(CSV.read("./data/thirtyParticles/Re0_phi02_n30_symmetricRotation_dimensionless.csv", DataFrame))
+    data_matrix = data_matrix[:, [1,2,3,7]]
+    units = [u"m",  u"0", u"0", u"N", u"0"]
+elseif dataset == 18 #fluid mechanics, 30 particles, phi = 0.3
+    data_matrix = Matrix(CSV.read("./data/thirtyParticles/Re0_phi03_n30_symmetricRotation_dimensionless.csv", DataFrame))
+    data_matrix = data_matrix[:, [1,2,3,7]]
+    units = [u"m",  u"0", u"0", u"N", u"0"]
+elseif dataset == 19 #fluid mechanics, 30 particles, phi = 0.4
+    data_matrix = Matrix(CSV.read("./data/thirtyParticles/Re0_phi04_n30_symmetricRotation_dimensionless.csv", DataFrame))
+    data_matrix = data_matrix[:, [1,2,3,7]]
+    units = [u"m",  u"0", u"0", u"N", u"0"]
 end
 
 if dataset == 4
