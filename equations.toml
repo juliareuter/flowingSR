@@ -1,0 +1,65 @@
+# Dataset Generator for Regression Datasets
+
+[general]
+# Number of data instances (samples) to generate for each model
+num_samples = 1000
+
+#---------------------------------
+
+[gaussian]
+equation = "exp.(-theta.^2 ./ (2 .* sigma.^2)) ./ sqrt.(2 * pi .* sigma.^2)" #assuming that mean value mu = 0
+noise_scale = 0.1
+
+[gaussian.features]
+theta = { min = -5.0, max = 5.0 }
+sigma = { min = 0.5, max = 3.0 }
+
+[gaussian.constants]
+pi = 3.141592653589793
+
+#---------------------------------
+
+[newton_gravitation]
+equation = "G .* m1 .* m2 ./ ((x1.-x2).^2 + (y1.-y2).^2 + (z1.-z2).^2)"
+noise_scale = 0.1
+
+[newton_gravitation.features]
+x1 = { min = -1000.0, max = 1000.0 }   
+y1 = { min = -1000.0, max = 1000.0 }
+z1 = { min = -1000.0, max = 1000.0 }
+x2 = { min = -1000.0, max = 1000.0 }
+y2 = { min = -1000.0, max = 1000.0 }
+z2 = { min = -1000.0, max = 1000.0 }
+m1 = { min = 1.3e22, max = 2e30 }   # min mass is pluto, max mass is sun
+m2 = { min = 1.3e22, max = 2e30 }   # min mass is pluto, max mass is sun
+
+[newton_gravitation.constants]
+G = 6.67430e-11  # Gravitational constant in m^3 kg^-1 s^-2
+
+#---------------------------------
+
+[magman]
+equation = "-alpha .* x .* I ./ (x.^2 .+ beta).^3"
+noise_scale = 0.0
+
+[magman.features]
+x = { min = -0.075, max = 0.075 }  # distance from ball to coil center
+I = { min = 0.0, max = 0.8 }    # current through coil
+
+[magman.constants]
+alpha = 5.52    # empirically discovered 
+beta = 1.75     # empirically discovered 
+
+#---------------------------------
+
+[light]
+equation = "(x .- u .* t) ./ (sqrt.(1 .- u.^2 ./ c.^2))"
+noise_scale = 0.1
+
+[light.features]
+x = { min = -100.0, max = 100.0 }  # Position (m)
+t = { min = 0.0, max = 100.0 }      # Time (s)
+u = { min = 0.0, max = 0.99 }       # Velocity (m/s)
+
+[light.constants]
+c = 299792458.0  # Speed of light in vacuum (m/s)
